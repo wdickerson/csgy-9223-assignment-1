@@ -7,17 +7,17 @@ function App() {
   const [answerText, setAnswerText] = useState('');
   const [message, setMessage] = useState('');
 
-  const fetchJoke = () => {
-    fetch('https://icanhazdadjoke.com/', {
+  const fetchAnswers = () => {
+    fetch('https://yxtjaw62u7.execute-api.us-east-1.amazonaws.com/dev/answers?query=croissant', {
       method: 'GET',
       headers: {
         'Accept': 'application/json',
       },
     }).then(res => res.json()).then((result) => {
-        setMessage(result.joke);
+        setMessage(result.text);
       },
       () => {
-        setMessage('Uh oh, there was a problem fetching a joke :(');
+        setMessage('Uh oh, there was a problem fetching questions :(');
       }
     );
   }
@@ -30,12 +30,12 @@ function App() {
   }
 
   const handlePostQuestion = (event) => {
-    fetchJoke();
+    fetchAnswers();
     event.preventDefault();
   }
 
-  const handleShowAnswers = (event) => {
-    fetchJoke();
+  const handleFindAnswers = (event) => {
+    fetchAnswers();
     event.preventDefault();
   }
 
@@ -54,15 +54,15 @@ function App() {
         </label>
         <input type="submit" value="Post Question" />
       </form>
-      <form onSubmit={handleShowAnswers}>
+      <form onSubmit={handleFindAnswers}>
         <label>
           Answer:
           <input type="text" value={answerText} onChange={handleAnswerTextChange} />
         </label>
-        <input type="submit" value="Show Answers" />
+        <input type="submit" value="Find Answers" />
       </form>
       <p>
-        Question/answer functionality coming soon. For now, click either button to enjoy a joke.
+        Post a question or search for answers above.
       </p>
       <p>
         {message}
