@@ -35,5 +35,10 @@ For now the build directory is copied to an AWS S3 bucket configured to host a s
 
 ## Server
 
-The server is implemented via Lambda functions. Those definitions are in the `lambdas` directory. Currently, only one function is implemented (and it returns dummy data). 
+The server is implemented via Lambda functions. Those definitions are in the `lambdas` directory.  
+
+The `qet_questions` Lambda accepts a `query` parameter from request, searches ElasticSearch for up to three posts tagged with that query, then retrieves those posts from DynamoDB.  
+
+The `save_post` Lambda accepts text from the request and saves it to DynamoDB.
+
 
