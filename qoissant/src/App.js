@@ -4,31 +4,32 @@ import { useState } from 'react'
 
 function App() {
   const [questionText, setQuestionText] = useState('');
-  const [queryText, setQueryText] = useState('');
-  const [fetchedQuery, setFetchedQuery] = useState('');
+  const [tagQuery, setTagQuery] = useState('');
+  const [textQuery, setTextQuery] = useState('');
+  const [fetchedTags, setFetchedTags] = useState('');
   const [fetchedAnswers, setFetchedAnswers] = useState([]);
   const [postedQuestion, setPostedQuestion] = useState('');
   const [postedQuestionId, setPostedQuestionId] = useState('');
 
-  const fetchAnswers = () => {
-    fetch(`https://yxtjaw62u7.execute-api.us-east-1.amazonaws.com/dev/answers?query=${queryText}`, {
+  const fetchAnswers = (queryString) => {
+    fetch(`https://yxtjaw62u7.execute-api.us-east-1.amazonaws.com/dev/answers?${queryString}`, {
       method: 'GET',
       headers: {
         'Accept': 'application/json',
       },
     }).then(res => res.json()).then((result) => {
-        setFetchedQuery(queryText);
+        setFetchedTags(result.searched_tags);
         setFetchedAnswers(result.posts);
       },
       () => {
-        setFetchedQuery('');
+        setFetchedTags('');
         setFetchedAnswers(['Uh oh, there was a problem fetching questions :(']);
       }
     );
   }
 
   const postQuestion = () => {
-    fetch(`https://yxtjaw62u7.execute-api.us-east-1.amazonaws.com/dev/questions?query=${queryText}`, {
+    fetch(`https://yxtjaw62u7.execute-api.us-east-1.amazonaws.com/dev/questions?query=${questionText}`, {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
@@ -49,8 +50,12 @@ function App() {
     setQuestionText(event.target.value);
   }
 
-  const handleQueryTextChange = (event) => {
-    setQueryText(event.target.value);
+  const handleTagQueryChange = (event) => {
+    setTagQuery(event.target.value);
+  }
+
+  const handleTextQueryChange = (event) => {
+    setTextQuery(event.target.value);
   }
 
   const handlePostQuestion = (event) => {
@@ -59,7 +64,12 @@ function App() {
   }
 
   const handleFindAnswers = (event) => {
-    fetchAnswers();
+    fetchAnswers(`query=${tagQuery}`);
+    event.preventDefault();
+  }
+
+  const handleFindAnswersBySentence = (event) => {
+    fetchAnswers(`text=${textQuery}`);
     event.preventDefault();
   }
 
@@ -68,28 +78,40 @@ function App() {
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
         <p>
-          A webiste for questions and answers.
+          A website for questions and answers.
         </p>
       </header>
+      <h3>Post a question</h3>
       <form onSubmit={handlePostQuestion}>
         <label>
-          Post a question:
+          Your question:&nbsp;
           <input type="text" value={questionText} onChange={handleQuestionTextChange} />
         </label>
         <input type="submit" value="Post Question" />
       </form>
+      <h3>-OR- Search for a post tag (ie, "python")</h3>
       <form onSubmit={handleFindAnswers}>
         <label>
-          Search for answers:
-          <input type="text" value={queryText} onChange={handleQueryTextChange} />
+          Search by tag:&nbsp;
+          <input type="text" value={tagQuery} onChange={handleTagQueryChange} />
         </label>
         <input type="submit" value="Find Answers" />
       </form>
-      <p>
-        Post a question or search for answers above.
-      </p>
+      <h3>-OR- Search by typing a phrase (ie, "show me posts about python and api-design")</h3>
+      <form onSubmit={handleFindAnswersBySentence}>
+        <label>
+          Search by phrase:&nbsp;
+          <input type="text" value={textQuery} onChange={handleTextQueryChange} />
+        </label>
+        <input type="submit" value="Find Answers" />
+      </form>
       <div>
-        {fetchedQuery && `Answers related to ${fetchedQuery}:`}
+        <h2>
+          {fetchedTags && `Answers related to ${fetchedTags.join(', ')}:`}
+        </h2>
+        <h3>
+          {fetchedTags && 'These results were sent to the email address registered with Qoissant'}
+        </h3>
         {
           fetchedAnswers.map(answer => {
             return <p key={answer.id}>{answer.text}</p>;
